@@ -1,6 +1,6 @@
 from typing import List, Literal, Optional
 from datetime import datetime
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_serializer
 
 class Project(BaseModel):
     id: int
@@ -90,6 +90,11 @@ class StartTimeEntryRequest(BaseModel):
     project_id: Optional[int] = None
     workspace_id: int
     duration: Optional[int] = -1
-    start: Optional[str] = Field(default_factory= lambda: datetime.utcnow().isoformat(timespec="seconds") + "Z")
+    start: Optional[datetime] = Field(default_factory= lambda: datetime.utcnow())
     stop: Literal[None] = None
+    
+    @field_serializer('start')
+    def serialize_start(self, start: datetime):
+        return start.isoformat(timespec="seconds") + "Z"
+    
     
