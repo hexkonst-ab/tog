@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "tog"
+version = "0.1.0"
+description = ""
+authors = ["Jonathan Skårstedt <jonathan@hexkon.st>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+click = "^8.1.7"
+requests = "^2.31.0"
+
+[tool.poetry.scripts]
+tog = "tog.cli:cli"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
