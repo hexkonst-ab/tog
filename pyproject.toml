@@ -10,6 +10,7 @@ readme = "README.md"
 python = "^3.10"
 click = "^8.1.7"
 requests = "^2.31.0"
+pydantic = "^2.4.2"
 
 [tool.poetry.scripts]
 tog = "tog.cli:cli"
