@@ -2,6 +2,7 @@ from typing import List, Literal, Optional
 from datetime import datetime
 from pydantic import BaseModel, Field, field_serializer
 
+
 class Project(BaseModel):
     id: int
     workspace_id: int
@@ -9,10 +10,11 @@ class Project(BaseModel):
     name: str
     is_private: bool
     active: bool
-    at: datetime # last update
-    created_at: datetime # creation 
+    at: datetime  # last update
+    created_at: datetime  # creation
     actual_hours: int
     actual_seconds: int
+
 
 class TimeEntry(BaseModel):
     id: int
@@ -31,6 +33,7 @@ class TimeEntry(BaseModel):
     server_deleted_at: datetime | None
     user_id: int
 
+
 class Workspace(BaseModel):
     admin: bool
     api_token: str
@@ -43,7 +46,7 @@ class Workspace(BaseModel):
     ical_url: str
     id: int
     logo_url: str
-    max_data_retention_days: Optional[int] = None 
+    max_data_retention_days: Optional[int] = None
     name: str
     only_admins_may_create_projects: bool
     only_admins_may_create_tags: bool
@@ -63,6 +66,7 @@ class Workspace(BaseModel):
     suspended_at: str | None
     # te_constraints: any
     working_hours_in_minutes: int | None
+
 
 class Me(BaseModel):
     id: int
@@ -90,11 +94,10 @@ class StartTimeEntryRequest(BaseModel):
     project_id: Optional[int] = None
     workspace_id: int
     duration: Optional[int] = -1
-    start: Optional[datetime] = Field(default_factory= lambda: datetime.utcnow())
+    start: Optional[datetime] = Field(
+        default_factory=lambda: datetime.utcnow())
     stop: Literal[None] = None
-    
+
     @field_serializer('start')
     def serialize_start(self, start: datetime):
         return start.isoformat(timespec="seconds") + "Z"
-    
-    

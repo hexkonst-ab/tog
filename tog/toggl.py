@@ -1,10 +1,11 @@
 from typing import List, Optional
 import requests
 from pydantic import BaseModel, RootModel
-from tog.data_types import Project, StartTimeEntryRequest, TimeEntry, Workspace, Me
+from .data_types import Project, StartTimeEntryRequest, TimeEntry, Workspace, Me
+
 
 class Toggl():
-    def __init__(self, token: str, verbose :bool = True) -> None:
+    def __init__(self, token: str, verbose: bool = True) -> None:
         self.auth: (str, str) = (token, "api_token")
         self.verbose: bool = verbose
         self.basev9: str = "https://api.track.toggl.com/api/v9"
@@ -14,18 +15,18 @@ class Toggl():
         r = requests.get(
             "https://api.track.toggl.com/api/v9/me",
             auth=self.auth
-            )
-        
+        )
+
         return Me.model_validate_json(r.content)
-    
+
     def me(self):
         return self._me
-    
+
     def __get_current_entry(self) -> TimeEntry | None:
         r = self.__toggl_get("me/time_entries/current")
         model = RootModel[Optional[TimeEntry]]
         return model.model_validate_json(r.content).root
-    
+
     def projects(self) -> List[Project]:
         r = self.__toggl_get("me/projects")
         return RootModel[List[Project]].model_validate_json(r.content).root
@@ -37,9 +38,9 @@ class Toggl():
 
     def start(self):
         entry = self.__get_current_entry()
-        if entry != None:
-            print(f"Entry is already started! Ignoring...")
-            if self.verbose: 
+        if entry is not None:
+            print("Entry is already started! Ignoring...")
+            if self.verbose:
                 print(entry.model_dump_json(indent=2))
             return
         else:
@@ -50,8 +51,8 @@ class Toggl():
 
     def stop(self):
         entry = self.__get_current_entry()
-        if entry == None:
-            print(f"No entry started! Ignoring...")
+        if entry is None:
+            print("No entry started! Ignoring...")
             return
         else:
             if self.verbose:
@@ -61,18 +62,18 @@ class Toggl():
     def __start_new_entry(self, workspace_id: int = None):
         wid = workspace_id or self._me.default_workspace_id
         req = StartTimeEntryRequest(
-                description= "Hello Toggl!",
-                workspace_id= workspace_id or self._me.default_workspace_id
-            )
-        
+            description="Hello Toggl!",
+            workspace_id=workspace_id or self._me.default_workspace_id
+        )
+
         print(req.model_dump_json(indent=2))
-    
+
         r = self.__toggl_post(
-            f"workspaces/{wid}/time_entries", 
+            f"workspaces/{wid}/time_entries",
             req)
-        
+
         print(f"Started time entry!\n{r.content}")
-        
+
     def __stop_entry(self, entry: TimeEntry):
         wid = entry.workspace_id or self._me.default_workspace_id
 
@@ -81,8 +82,8 @@ class Toggl():
     def __toggl_patch(self, resource: str):
         r = requests.patch(
             f"{self.basev9}/{resource}",
-            headers= {"Content-Type": "application/json"},
-            auth= self.auth
+            headers={"Content-Type": "application/json"},
+            auth=self.auth
         )
 
         return self.__verify_response(r)
@@ -90,8 +91,8 @@ class Toggl():
     def __toggl_post(self, resource: str, model: BaseModel):
         url = f"{self.basev9}/{resource}"
         r = requests.post(
-            url, 
-            headers={"Content-Type": "application/json"}, 
+            url,
+            headers={"Content-Type": "application/json"},
             auth=self.auth,
             data=model.model_dump_json())
 
@@ -102,17 +103,16 @@ class Toggl():
             f"{self.basev9}/{resource}",
             headers={"Content-Type": "application/json"},
             auth=self.auth)
-        
+
         return self.__verify_response(r)
-        
-    def __verify_response(self, response: requests.Response, url = None):
+
+    def __verify_response(self, response: requests.Response, url=None):
         r = response
         if r.status_code not in range(200, 300):
-            raise(RuntimeError("\n\n".join([
+            raise (RuntimeError("\n\n".join([
                 f"[{r.status_code}] {url or ''}",
                 str(r.content),
                 str(r.headers)
             ])))
-        
-        return r
 
+        return r
